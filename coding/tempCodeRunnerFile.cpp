@@ -1,0 +1,1 @@
+current_fruit.size() >= last_fruit.size()
