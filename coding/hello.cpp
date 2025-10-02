@@ -25,9 +25,8 @@ int main() {
         current_fruit  = index_list(number, fruits);
         last_fruit  = index_list(number - 1, fruits);
         if (last_fruit.length() <= current_fruit.length()){
-            swap(current_fruit, last_fruit);
+            std::rotate()
         };
-        std::replace(fruits.begin(),fruits.end(), last_fruit+current_fruit, current_fruit+last_fruit);
         std::cout << (number) << fruits.size();
         std::cout << "\n";
         for (std::string finished_fruits : fruits){
