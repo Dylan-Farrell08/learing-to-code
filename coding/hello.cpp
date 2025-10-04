@@ -8,7 +8,7 @@
 #include <cmath>
 #include "random_path.cpp"
 #include <map>
-
+#include <cstdlib>
 struct Vector{
     int x; 
     int y;
@@ -29,7 +29,11 @@ std::string movement;
 
 void print_screen(){
     //just a basic loop looking at all the code
-    std::system("clear");
+    if (_WIN32){
+        std::system("cls");
+    } else {
+        std::system("clear");
+    };
     for (int i =  0;i < size;){
         for (std::string lines: screen[i]){
             std::cout << lines;
@@ -78,7 +82,6 @@ void move_and_slide(){
 
 int main() {
     std::cout << "please enter a grid size(it must be <10)";
-    generate_path();
     bool wrong_data = true;
     while (wrong_data){
         std::cin >> size;
@@ -97,21 +100,23 @@ int main() {
             screen[x][y] = ("@");
         };
     };
-    int centered_size = (size - 1)/2;
-    screen[centered_size][centered_size] = "&";
-    position.x = centered_size;
-    position.y = centered_size;
+    srand(time(0));
+    int x_rand = rand() % size;
+    int y_rand = rand() % size;
+    screen[x_rand][y_rand] = "&";
+    position.x = x_rand;
+    position.y = y_rand;
     print_screen();
+    std::cout << generate_path(position);
     while (running == true){
-        std::cout<< getchar();
         std::cin.ignore(1000, '\n');
-        // std::cin >> movement;
-        // velocity.x = 0;
-        // velocity.y = 0;
-        // input_handeler(movement);
+        std::cin >> movement;
+        velocity.x = 0;
+        velocity.y = 0;
+        input_handeler(movement);
         move_and_slide();
         print_screen();
-        //makes it 60fps but basically useless because of stupid blocking inputs
+        // makes it 60fps but basically useless because of stupid blocking inputs
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     };
     return 0;
