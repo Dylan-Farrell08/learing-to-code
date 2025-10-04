@@ -1,37 +1,107 @@
-#include <algorithm>
+#include <cstdlib>
 #include <iostream>
-#include <list>
-#include <string>
 
-std::list<std::string> fruits = {"cherr", "banana", "appl", "app"};
-std::string current_fruit = "null";
-std::string last_fruit;
-std::list<std::string> ordered_fruit = {};
-std::string null = "";
-std::string index_list(int index, std::list<std::string> searching){
-    int i = 0;
-    std::string indexed_list = "nothing";
-    for (std::string part: searching){
-        if (i == index){
-            indexed_list = part;
+#include <string>
+#include <thread>
+#include <chrono>
+#include <cmath>
+#include "random_path.cpp"
+struct Vector{
+    int x; 
+    int y;
+} velocity, position, old_pos;
+bool running = true;
+std::string screen[10][10] = {};
+int size = -1;
+std::string saved_place = "@";
+std::string movement;
+
+void print_screen(){
+    //just a basic loop looking at all the code
+    system("clear");
+    for (int i =  0;i < size;){
+        for (std::string lines: screen[i]){
+            std::cout << lines;
         };
         i++;
+        std::cout << "\n";
     };
-    return (indexed_list);
+}
+
+void input_handeler(std::string input){
+    if (input == "q"){
+        std::cout << "stopping";
+        running = false;
+    };
+    if (input == "a"){
+        velocity.y = -1;
+    };
+    if (input == "d"){
+        velocity.y = 1;
+    };
+    if (input == "w"){
+        velocity.x = -1;
+    };
+    if (input == "s"){
+        velocity.x = 1;
+    };
+}
+
+//there has to be a better way to do this 
+//i can add in basic hitbox kinda stuff later by checking what
+//position+velocity is 
+void move_and_slide(){
+    old_pos.x = position.x;
+    old_pos.y = position.y;
+    position.x = position.x + velocity.x;
+    position.y = position.y + velocity.y; 
+    if (abs(position.x) >= size){
+        position.x = old_pos.x;        
+    };
+    if (abs(position.y) >= size){
+        position.y = old_pos.y;        
+    };
+    screen[old_pos.x][old_pos.y] = saved_place; 
+    saved_place = screen[position.x][position.y]; 
+    screen[position.x][position.y] = "&";
+    
 }
 
 int main() {
-    for (int number=1; number < fruits.size(); number++){
-        current_fruit  = index_list(number, fruits);
-        last_fruit  = index_list(number - 1, fruits);
-        if (last_fruit.length() <= current_fruit.length()){
-            std::rotate()
+    std::cout << "please enter a grid size(it must be <10)";
+    generate_path();
+    bool wrong_data = true;
+    while (wrong_data){
+        std::cin >> size;
+        if (std::cin.fail()||size > 10){
+            std::cin.clear();
+            //weird command that ignores every line up until a character in this case newline
+            std::cin.ignore(1000, '\n');
+            std::cout << "invalid type";
+        } else{
+            wrong_data = false;
         };
-        std::cout << (number) << fruits.size();
-        std::cout << "\n";
-        for (std::string finished_fruits : fruits){
-            std::cout << finished_fruits << " ";
+    };
+    // i need to figure out how to make sure that the data type is correct 
+    for (int x = 0;size > x;x++){
+        for (int y = 0;size > y; y++){
+            screen[x][y] = ("@");
         };
+    };
+    int centered_size = (size - 1)/2;
+    screen[centered_size][centered_size] = "&";
+    position.x = centered_size;
+    position.y = centered_size;
+    print_screen();
+    while (running == true){
+        std::cin >> movement;
+        velocity.x = 0;
+        velocity.y = 0;
+        input_handeler(movement);
+        move_and_slide();
+        print_screen();
+        //makes it 60fps but basically useless because of stupid blocking inputs
+        //std::this_thread::sleep_for(std::chrono::milliseconds(16));
     };
     return 0;
 }

@@ -1,4 +1,5 @@
 game duh
 neural network
 tiktaktoe
-weather checker
+weather checker for command line linux
+tournament sim(pokemon)
