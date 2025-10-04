@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 
@@ -6,10 +7,20 @@
 #include <chrono>
 #include <cmath>
 #include "random_path.cpp"
+#include <map>
+
 struct Vector{
     int x; 
     int y;
 } velocity, position, old_pos;
+
+enum key_press{
+    w = 1,
+    s = 2,
+    a = 3,
+    d = 4
+} wasd;
+
 bool running = true;
 std::string screen[10][10] = {};
 int size = -1;
@@ -18,7 +29,7 @@ std::string movement;
 
 void print_screen(){
     //just a basic loop looking at all the code
-    system("clear");
+    std::system("clear");
     for (int i =  0;i < size;){
         for (std::string lines: screen[i]){
             std::cout << lines;
@@ -27,23 +38,21 @@ void print_screen(){
         std::cout << "\n";
     };
 }
-
+                             
 void input_handeler(std::string input){
     if (input == "q"){
         std::cout << "stopping";
         running = false;
     };
-    if (input == "a"){
-        velocity.y = -1;
+    std::map<std::string, int> wasd = {
+        {"w",1},{"s",2},{"a",3},{"d",4}
     };
-    if (input == "d"){
-        velocity.y = 1;
-    };
-    if (input == "w"){
-        velocity.x = -1;
-    };
-    if (input == "s"){
-        velocity.x = 1;
+    switch(wasd[input]){
+        case 1: velocity.x = -1; break;
+        case 2: velocity.x = 1; break;
+        case 3: velocity.y = -1; break;
+        case 4: velocity.y = 1; break;
+    
     };
 }
 
@@ -94,14 +103,16 @@ int main() {
     position.y = centered_size;
     print_screen();
     while (running == true){
-        std::cin >> movement;
-        velocity.x = 0;
-        velocity.y = 0;
-        input_handeler(movement);
+        std::cout<< getchar();
+        std::cin.ignore(1000, '\n');
+        // std::cin >> movement;
+        // velocity.x = 0;
+        // velocity.y = 0;
+        // input_handeler(movement);
         move_and_slide();
         print_screen();
         //makes it 60fps but basically useless because of stupid blocking inputs
-        //std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
     };
     return 0;
 }
