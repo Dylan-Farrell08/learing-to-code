@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-
 #include <string>
 #include <thread>
 #include <chrono>
@@ -29,7 +28,7 @@ std::string movement;
 
 void print_screen(){
     //just a basic loop looking at all the code
-    if (_WIN32){
+    if (false){
         std::system("cls");
     } else {
         std::system("clear");
@@ -67,25 +66,20 @@ bool checking_ahead(){
         case 2: map_dir.y = -1; break;
         case 3: map_dir.y = 1; break;
     };
-    bool fine_to_go = false;
-    if ((map_pos.x + map_dir.x) < 1 ||(map_pos.x + map_dir.x) > size - 1){
-        if((map_pos.x + map_dir.y) < 1 ||(map_pos.x + map_dir.y) > size - 1){
+    bool fine_to_go = true;
+    if ((map_pos.x + map_dir.x) > 0 && (map_pos.x + map_dir.x) < size){
+        if((map_pos.y + map_dir.y) > 0 && (map_pos.y + map_dir.y) < size){
             bool fine_to_go = true;
         };
     };
-    if (screen[map_pos.x + map_dir.x][map_pos.y + map_dir.y] != walls || fine_to_go){
-        if (map_dir.y != 0){
-            screen[map_pos.x + 1][map_pos.y] = walls;
-            screen[map_pos.x - 1][map_pos.y] = walls;
-        } else {
-            screen[map_pos.x][map_pos.y + 1] = walls;
-            screen[map_pos.x][map_pos.y - 1] = walls;
-        };
-        std::cout << "moved";
+    std::cout << fine_to_go;
+    if ((screen[map_pos.x + map_dir.x][map_pos.y + map_dir.y] != walls) && fine_to_go){
         map_pos.x = map_pos.x + map_dir.x;
         map_pos.y = map_pos.y + map_dir.y;
+        screen[map_pos.x][map_pos.y] = walls;
         return true;
     } else {
+        std::cout << "STOP";
         return false;
     };
 }
@@ -93,24 +87,28 @@ bool checking_ahead(){
 void generate_path(){
     srand(time(0));
     bool generating = true;
-    map_pos = position ;
-    int last_move = 0;
+    map_pos = position;
+    int last_move = 5;
+    bool keep_gen;
     while (generating == true){
+        keep_gen = false;
         map_dir = default_vec;
         dir = rand() % 4;
         for (int i = -1; i <= 3; i++){
-            if (checking_ahead() == true|| i != last_move){
+            if (checking_ahead() == true && i != last_move){
                 last_move = dir;
-                i = 3;
+                i=5;
+                keep_gen = true;
                 std::cout << "fail";
-            } else if (i == 3){
-                generating = false;
-                std::cout << "win";
             };
             dir = i;
         };
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        if (!keep_gen){
+            generating = false;
+            std::cout << "win";
+        };
         print_screen();
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
     };
 }
 
@@ -154,13 +152,13 @@ int main() {
             screen[x][y] = (deadspace);
         };
     };
+    generate_path();
     srand(time(0));
     int x_rand = rand() % size;
     int y_rand = rand() % size;
     screen[x_rand][y_rand] = player;
     position.x = x_rand;
     position.y = y_rand;
-    generate_path();
     print_screen();
     while (running == true){
         std::cin.ignore(1000, '\n');
