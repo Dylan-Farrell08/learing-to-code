@@ -6,13 +6,12 @@
 #include <thread>
 #include <chrono>
 #include <cmath>
-#include "random_path.cpp"
 #include <map>
 #include <cstdlib>
 struct Vector{
     int x; 
     int y;
-} velocity, position, old_pos;
+} velocity, position, old_pos, map_dir, map_pos, default_vec;
 
 enum key_press{
     w = 1,
@@ -20,10 +19,11 @@ enum key_press{
     a = 3,
     d = 4
 } wasd;
-
+//holy guacamole dead space
+std::string walls = "#", player = "@", deadspace = " ";
 bool running = true;
 std::string screen[10][10] = {};
-int size = -1;
+int size = -1, dir = 5;
 std::string saved_place = "@";
 std::string movement;
 
@@ -57,6 +57,60 @@ void input_handeler(std::string input){
         case 3: velocity.y = -1; break;
         case 4: velocity.y = 1; break;
     
+    };
+}
+//fix ts in morning
+bool checking_ahead(){
+    switch(dir){
+        case 0: map_dir.x = -1; break;
+        case 1: map_dir.x = 1; break;
+        case 2: map_dir.y = -1; break;
+        case 3: map_dir.y = 1; break;
+    };
+    bool fine_to_go = false;
+    if ((map_pos.x + map_dir.x) < 1 ||(map_pos.x + map_dir.x) > size - 1){
+        if((map_pos.x + map_dir.y) < 1 ||(map_pos.x + map_dir.y) > size - 1){
+            bool fine_to_go = true;
+        };
+    };
+    if (screen[map_pos.x + map_dir.x][map_pos.y + map_dir.y] != walls || fine_to_go){
+        if (map_dir.y != 0){
+            screen[map_pos.x + 1][map_pos.y] = walls;
+            screen[map_pos.x - 1][map_pos.y] = walls;
+        } else {
+            screen[map_pos.x][map_pos.y + 1] = walls;
+            screen[map_pos.x][map_pos.y - 1] = walls;
+        };
+        std::cout << "moved";
+        map_pos.x = map_pos.x + map_dir.x;
+        map_pos.y = map_pos.y + map_dir.y;
+        return true;
+    } else {
+        return false;
+    };
+}
+
+void generate_path(){
+    srand(time(0));
+    bool generating = true;
+    map_pos = position ;
+    int last_move = 0;
+    while (generating == true){
+        map_dir = default_vec;
+        dir = rand() % 4;
+        for (int i = -1; i <= 3; i++){
+            if (checking_ahead() == true|| i != last_move){
+                last_move = dir;
+                i = 3;
+                std::cout << "fail";
+            } else if (i == 3){
+                generating = false;
+                std::cout << "win";
+            };
+            dir = i;
+        };
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        print_screen();
     };
 }
 
@@ -97,22 +151,21 @@ int main() {
     // i need to figure out how to make sure that the data type is correct 
     for (int x = 0;size > x;x++){
         for (int y = 0;size > y; y++){
-            screen[x][y] = ("@");
+            screen[x][y] = (deadspace);
         };
     };
     srand(time(0));
     int x_rand = rand() % size;
     int y_rand = rand() % size;
-    screen[x_rand][y_rand] = "&";
+    screen[x_rand][y_rand] = player;
     position.x = x_rand;
     position.y = y_rand;
+    generate_path();
     print_screen();
-    std::cout << generate_path(position);
     while (running == true){
         std::cin.ignore(1000, '\n');
         std::cin >> movement;
-        velocity.x = 0;
-        velocity.y = 0;
+        velocity = default_vec;
         input_handeler(movement);
         move_and_slide();
         print_screen();

@@ -1,1 +1,1 @@
-s
+(map_pos.x + map_dir.x) < 0 || < size
