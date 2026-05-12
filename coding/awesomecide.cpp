@@ -9,7 +9,7 @@ int y_pos = 5;
 bool playing = true;
 
 void write_to_screen(int x,int y, string replace){
-    map[x][y] = replace;
+    map[y][x] = replace;
 }
 
 void fill_display(){
@@ -39,8 +39,28 @@ void display(){
 void play_input(){
     string input;
     std::cin >> input;
+    write_to_screen(x_pos, y_pos, "0");
     if (input == "a"){
+        x_pos += -1;
+    };
+    if (input == "d"){
         x_pos += 1;
     };
+    if (input == "w"){
+        y_pos += -1;
+    };
+    if (input == "s"){
+        y_pos += 1;
+    };
     write_to_screen(x_pos, y_pos, "a");
+}
+
+
+int main(){
+    fill_display();
+    display();
+    while(playing){
+        play_input();
+        display();
+    };
 }
