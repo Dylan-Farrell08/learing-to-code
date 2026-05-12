@@ -1,4 +1,6 @@
 #include <iostream>
+#include <conio.h>
+#include <errno.h>
 using namespace std;
 
 string map[10][10];
@@ -35,6 +37,7 @@ void display(){
         };
     };
 }
+    
 
 void play_input(){
     string input;
@@ -55,12 +58,25 @@ void play_input(){
     write_to_screen(x_pos, y_pos, "a");
 }
 
+void show_chat(string dialogue, string name, string replies){
+    cout << name + "\n";
+    cout << dialogue;
+    str test == replies[0];
+    if (errno < 1){
+        for(int x = 0; x <= sizeof(replies) / sizeof(replies[0]; x++){
+            cout << replies[x] + "\n";
+        };
+    };
+}
+
+
 
 int main(){
     fill_display();
     display();
     while(playing){
         play_input();
+        clrscr();
         display();
     };
 }
